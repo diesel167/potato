@@ -1,26 +1,33 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import Countries from './Components/Countries.js';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+let countries=[];
+
+class App extends React.Component {
+  constructor(){
+    super();
+    this.state={
+      countries: countries
+    }
+  }
+  
+  render(){
+    const request = async () => {
+      const response = await fetch('https://raw.githubusercontent.com/mledoze/countries/master/countries.json');
+      countries = await response.json();
+      this.setState({
+        countries: countries
+      });
+    
+    };
+    request();
+    
+    return (
+      <Countries data={this.state.countries}/>
+    );
+  }
+
 }
 
 export default App;
