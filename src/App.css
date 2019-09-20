@@ -1,4 +1,40 @@
+@font-face{
+    font-family: 'Montserratt';
+    src: url('/font/Montserrat-Thin.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
 
+body{
+    padding: auto;
+    font-family: 'Montserratt', sans-serif;
+}
+
+header{
+    height: 30px;
+    background-color: indianred;
+}
+
+#container{
+    margin: auto;
+    position: relative;
+    width: 500px;
+    height: 300px;
+}
+
+.country-list-table{
+    width: 100%;
+    margin: auto;
+}
+
+.country-list-table tr{
+    height: 40px;
+}
+
+.country-list-table td{
+    width: 25%;
+
+}
 .country-list-table th, td {
     border-bottom: 1px solid #ddd;
 }
@@ -10,3 +46,6 @@
     cursor:pointer;
 }
 
+.country-list-table tr:nth-child(1):hover {
+    background-color: white ;
+}
