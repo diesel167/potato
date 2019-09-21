@@ -1,5 +1,23 @@
 import React from 'react';
 import '../flags/flags.css';
+import Papa from 'papaparse';
+
+
+
+
+
+
+
+const fs = require('fs');
+const file = fs.createReadStream('../stats/volume.csv');
+Papa.parse(file, {
+  worker: true,
+  complete: function(results) {
+    console.log(results);
+  }
+});
+
+
 class Countries extends React.Component {
   
   constructor(props){
@@ -7,30 +25,33 @@ class Countries extends React.Component {
     this.state={
       data: this.props.data,
       showRowsStart: 0,
-      showRowsEnd: 10
+      showRowsEnd: 10,
+      isLoaded: false
+
     }
   }
   
   static getDerivedStateFromProps(props, state) {
-    if((state.data) !== props.data) {
+    if(((state.data) !== props.data) && state.isLoaded ===false ) {
       return {
-        data: props.data
+        data: props.data,
+        isLoaded:true
       };
     }
     // Return null to indicate no change to state.
     return null;
   }
-  sort=()=>{
+  sortName=(parameter)=>{
     let datatemp = this.state.data.slice();
-    datatemp.sort(this.sortByName);
+    datatemp.sort(parameter);
     this.setState({data: datatemp});
-    
   };
-  
-  sortByName = (a, b)=> {
+  sortByNameDesc = (a, b)=> {
+    return b.name.common.localeCompare(a.name.common);
+  };
+  sortByNameAsc = (a, b)=> {
     return a.name.common.localeCompare(b.name.common);
   };
-  
   next=()=>{
     this.setState( {
       showRowsEnd : this.state.showRowsEnd+10,
@@ -61,23 +82,20 @@ class Countries extends React.Component {
     });
     return (
       <>
-        <header>Your logo</header>
-        <div id="container"/>
-        <table className='country-list-table'>
-          <tbody>
-          {cells}
-          </tbody>
-  
-        </table>
-        <button onClick={()=>{
-          this.prev();
-        }}>prev</button>
-        <button onClick={()=>{
-          this.next();
-        }}>next</button>
-        <button onClick={()=>{
-          this.sort();
-        }}>sort</button>
+            <header>Your logo</header>
+            <table className='country-list-table'>
+              <tbody>
+              {cells}
+              </tbody>
+
+            </table>
+            <button onClick={()=>{
+              this.prev();
+            }}>prev</button>
+            <button onClick={()=>{this.next();}}>next</button>
+            <button onClick={()=>{this.sortName(this.sortByNameDesc);}}>sortDesc</button>
+            <button onClick={()=>{this.sortName(this.sortByNameAsc);}}>sortAsc</button>
+            <div id="container"/>
       </>
 
     );
