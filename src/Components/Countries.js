@@ -5,8 +5,6 @@ import * as d3 from 'd3';
 
 
 
-
-
 class Countries extends React.Component {
   constructor(props){
     super(props);
@@ -15,7 +13,7 @@ class Countries extends React.Component {
       showRowsStart: 0,
       showRowsEnd: 10,
       isLoaded: false,
-      stats: ''
+      stats: '',
     };
     this.updateStats=this.updateStats.bind(this);
   }
@@ -29,21 +27,23 @@ class Countries extends React.Component {
         isLoaded:true
       };
     }
-    
     // Return null to indicate no change to state.
     return null;
   }
   
   componentDidMount() {
+    this._isMounted = true;
     let that=this; //save context
     d3.csv(stats).then(function(stats) {
       that.updateStats(stats);
     }).catch(function(err) {
       throw err;
     });
-    
-    
-    
+  }
+  
+  componentWillUnmount() {
+    //this._isMounted = false;
+    console.log('unmount');
   }
   
   updateStats=(stats)=>{
@@ -61,11 +61,27 @@ class Countries extends React.Component {
   sortByNameAsc = (a, b)=> {
     return a.name.common.localeCompare(b.name.common);
   };
-  sortByVolumeDesc = (a, b)=>{
+  sortByVolumeDesc = ()=>{
     let datatemp = this.state.data.slice();
-    datatemp.sort((a,b)=>b.volume - a.volume);
+    datatemp.sort((a,b)=>parseInt(b.volume) - parseInt(a.volume));
+    console.log(datatemp);
     this.setState({data: datatemp});
   };
+  sortByVolumeAsc = ()=>{
+    let datatemp = this.state.data.slice();
+    datatemp.sort((a,b)=> - parseInt(b.volume) + parseInt(a.volume));
+    this.state.data.map((country,i)=> {
+      datatemp.map((countrySorted,j)=>{
+        if(country=countrySorted){
+          country.rankByVol
+        }
+      })
+      
+    })
+    console.log(datatemp);
+    this.setState({data: datatemp});
+  };
+ 
   next=()=>{
     this.setState( {
       showRowsEnd : this.state.showRowsEnd+10,
@@ -88,32 +104,34 @@ class Countries extends React.Component {
 
   };
   render(){
-    this.state.data.map((country,i)=> {
-      console.log(country);
-      let volume = 0;
-      this.state.stats.map(item => {
-        if (item.Area == country.name.common) {
-          volume = item.Value;
-        }
-        country.volume = volume;
+  
+    if (this._isMounted) {
+      this.state.data.map((country,i)=> {
+        let volume = 0;
+        this.state.stats.map(item => {
+          if (item.Area == country.name.common) {
+            volume = item.Value;
+            country.show=true;
+          }
+          country.volume = volume;
+        });
       });
-    });
-    
-    
+    }
     let cells=[];
     cells.push(<tr><th>Rank</th><th>Name of country</th><th>Volume</th><th>Price</th></tr>);
     this.state.data.map((country,i)=>{
-      if(i<=this.state.showRowsEnd && i>=this.state.showRowsStart){
-        cells.push(<tr>
-          <td>{i+1}</td>
-          <td><i className={'flag-'+country.cca2}/>{country.name.common}</td>
-          <td>{country.volume}</td>
-          <td>Price</td>
-        </tr>);
+      if(country.show===true){
+        if(i<=this.state.showRowsEnd && i>=this.state.showRowsStart && country.show===true){
+          cells.push(<tr>
+            <td>{i+1}</td>
+            <td><i className={'flag-'+country.cca2}/>{country.name.common}</td>
+            <td>{country.volume}</td>
+            <td>Price</td>
+          </tr>);
+        }
       }
-      
-      
     });
+    
     return (
       <>
             <header>Your logo</header>
@@ -129,9 +147,9 @@ class Countries extends React.Component {
             <button onClick={()=>{this.sortName(this.sortByNameDesc);}}>sortDesc</button>
             <button onClick={()=>{this.sortName(this.sortByNameAsc);}}>sortAsc</button>
             <button onClick={()=>{this.sortByVolumeDesc()}}>sortByVolumeDesc</button>
+        <button onClick={()=>{this.sortByVolumeAsc()}}>sortByVolumeAsc</button>
             <div id="container"/>
       </>
-
     );
   }
   
